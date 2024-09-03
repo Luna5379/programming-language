@@ -134,6 +134,65 @@ class Lexer {
           new Token(TOKENS.Slash, '/', '/', this.line, this.column)
         )
       }
+      case "'":
+      case '"': {
+        let string = []
+        while (this.peek() !== char) {
+          string.push(this.advance())
+          if (this.peek() === '\0')
+            this.error('Unexpected end of file; expected a closing quote')
+        }
+        this.advance()
+        string = string.join('')
+        return this.tokens.push(
+          new Token(TOKENS.String, string, string, this.line, this.column)
+        )
+      }
+      case '|': {
+        if (this.match('|'))
+          return this.tokens.push(
+            new Token(TOKENS.Or, '||', '||', this.line, this.column)
+          )
+      }
+      case '>': {
+        if (this.match('='))
+          return this.tokens.push(
+            new Token(TOKENS.Gte, '>=', '>=', this.line, this.column)
+          )
+        return this.tokens.push(
+          new Token(TOKENS.Gt, '>', '>', this.line, this.column)
+        )
+      }
+      case '<': {
+        if (this.match('='))
+          return this.tokens.push(
+            new Token(TOKENS.Lte, '<=', '<=', this.line, this.column)
+          )
+        return this.tokens.push(
+          new Token(TOKENS.Lt, '<', '<', this.line, this.column)
+        )
+      }
+      case '=': {
+        if (this.match('='))
+          return this.tokens.push(
+            new Token(TOKENS.Equiv, '==', '==', this.line, this.column)
+          )
+      }
+      case '&': {
+        if (this.match('&'))
+          return this.tokens.push(
+            new Token(TOKENS.And, '&&', '&&', this.line, this.column)
+          )
+      }
+      case '!': {
+        if (this.match('='))
+          return this.tokens.push(
+            new Token(TOKENS.NotEquiv, '!=', '!=', this.line, this.column)
+          )
+        return this.tokens.push(
+          new Token(TOKENS.Not, '!', '!', this.line, this.column)
+        )
+      }
     }
   }
 
@@ -147,5 +206,10 @@ class Lexer {
     if (this.current >= this.program.length) return '\0'
     this.column++
     return this.program[this.current++]
+  }
+
+  match(char) {
+    if (this.peek() === char) return this.advance()
+    return false
   }
 }
